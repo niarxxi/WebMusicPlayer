@@ -25,7 +25,7 @@ export default function SongCard({ song }: SongCardProps) {
 
   return (
     <div className="bg-white/5 hover:bg-white/10 transition-colors rounded-xl overflow-hidden flex">
-      <div className="relative w-16 h-16 flex-shrink-0">
+      <div className="relative w-32 h-32 flex-shrink-0">
         <Image src={song.image || "/placeholder.svg"} alt={song.name} fill className="object-cover" />
       </div>
       <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
@@ -39,7 +39,7 @@ export default function SongCard({ song }: SongCardProps) {
           <span className="text-xs text-white/50">{song.genre}</span>
           <button
             onClick={handlePlayClick}
-            className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
           >
             {isCurrentSong && isPlaying ? <Pause size={16} /> : <Play size={16} />}
           </button>

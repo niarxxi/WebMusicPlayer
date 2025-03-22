@@ -46,3 +46,80 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+/* Add responsive styling for tabs */
+@media (max-width: 640px) {
+  .tabs-list {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .tab-trigger {
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
+    flex-grow: 0;
+  }
+}
+
+/* Ensure no horizontal overflow on mobile */
+.overflow-x-hidden {
+  overflow-x: hidden;
+}
+
+/* Стили для адаптивных табов */
+@media (max-width: 640px) {
+  /* Убедимся, что табы корректно переносятся */
+  [role="tablist"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Убедимся, что кнопки табов имеют правильный размер */
+  [role="tab"] {
+    flex: 0 1 auto;
+    white-space: nowrap;
+  }
+}
+
+ /* Improved mobile category selection styles */
+  [role="tablist"] {
+  height: auto !important;
+  min-height: fit-content !important;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.25rem;
+}
+
+@media (max-width: 640px) {
+  [role="tablist"] {
+    gap: 0.5rem;
+    justify-content: flex-start;
+    padding: 0.5rem;
+  }
+
+  [role="tab"] {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Ensure the tabs container can grow vertically */
+.tabs-container {
+  height: auto;
+  min-height: fit-content;
+  overflow: visible;
+}
+
+/* Remove any fixed heights that might limit vertical expansion */
+@media (max-width: 480px) {
+  [role="tablist"] {
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+}
+

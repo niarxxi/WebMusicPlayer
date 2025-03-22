@@ -1,3 +1,5 @@
+export type CategoryFilter = string | "all"
+
 export interface Song {
   id: string
   name: string

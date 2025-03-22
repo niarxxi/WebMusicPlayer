@@ -4,29 +4,38 @@ import { useState } from "react"
 import { useMusicStore } from "@/lib/music-store"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search } from "lucide-react"
+import { Search, Music } from "lucide-react"
 import SongCard from "./song-card"
+import { Badge } from "@/components/ui/badge"
 
 export default function Catalog() {
-  const { songs } = useMusicStore()
+  const { songs, selectedCategory, setCategory } = useMusicStore()
   const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState("all")
 
+  // Получаем уникальные жанры для табов
+  const genres = Array.from(new Set(songs.map((song) => song.genre)))
+
+  // Фильтруем песни по поисковому запросу и выбранной категории
   const filteredSongs = songs.filter((song) => {
     const matchesSearch =
       song.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       song.artist.toLowerCase().includes(searchQuery.toLowerCase())
 
-    if (activeTab === "all") return matchesSearch
-    return matchesSearch && song.genre === activeTab
+    if (selectedCategory === "all") return matchesSearch
+    return matchesSearch && song.genre === selectedCategory
   })
-
-  // Получаем уникальные жанры для табов
-  const genres = Array.from(new Set(songs.map((song) => song.genre)))
 
   return (
     <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 shadow-xl text-white">
-      <h2 className="text-2xl font-bold mb-6">Каталог музыки</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold">Каталог музыки</h2>
+        {selectedCategory !== "all" && (
+          <Badge variant="outline" className="bg-purple-600/20 text-white border-purple-400">
+            <Music className="w-3 h-3 mr-1" />
+            {selectedCategory}
+          </Badge>
+        )}
+      </div>
 
       <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50" size={18} />
@@ -39,7 +48,7 @@ export default function Catalog() {
         />
       </div>
 
-      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
+      <Tabs defaultValue={selectedCategory} value={selectedCategory} onValueChange={setCategory} className="mb-6">
         <TabsList className="bg-white/5 w-full justify-start overflow-x-auto">
           <TabsTrigger value="all" className="data-[state=active]:bg-white/20">
             Все

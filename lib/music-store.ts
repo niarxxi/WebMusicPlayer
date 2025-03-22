@@ -1,16 +1,26 @@
 "use client"
 
 import { create } from "zustand"
-import type { Song } from "./types"
+import { persist } from "zustand/middleware"
+import type { Song, CategoryFilter } from "./types"
 
+// Обновляем интерфейс MusicStore, добавляя новые состояния и методы
 interface MusicStore {
   songs: Song[]
   currentSong: Song | null
   isPlaying: boolean
+  isShuffle: boolean
+  isLoop: boolean
+  shuffleQueue: string[]
+  selectedCategory: CategoryFilter
   playSong: (song: Song) => void
   togglePlay: () => void
+  toggleShuffle: () => void
+  toggleLoop: () => void
+  setCategory: (category: CategoryFilter) => void
   nextSong: () => void
   prevSong: () => void
+  getFilteredSongs: () => Song[]
 }
 
 // Расширенные данные о песнях
@@ -192,37 +202,382 @@ const songsData: Song[] = [
     description:
       "\"New Drop\" is a song by American rapper and singer Don Toliver. It was released through Cactus Jack and Atlantic Records as a track from his fourth studio album, Hardstone Psycho, on June 14, 2024. Toliver wrote the song with producers Wheezy, Psymun, Dez Wright, and Coleman. The song gained mainstream popularity a few months after its release due to it being played in the background of a lot of videos on the online video platform TikTok.",
   },
+  {
+    id: "15",
+    name: "Tambourine Dream",
+    artist: "Mac Miller",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 33,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573210/mac-miller-tambourine-dream.mp3",
+    description:
+      "“Tambourine Dream” is a short intro track, featuring solely the tambourine being played by Mac. Tambourine can be heard in much of Mac’s music around this era, including both of his 2014 projects: Balloonerism and Faces. In a Twitch stream the week after Balloonerism’s release, engineer Josh Berg revealed that it was always the same tambourine being used in Mac’s music, and that the tambourine had its own makeshift stand inside of the studio.",
+  },
+  {
+    id: "16",
+    name: "DJ's Chord Organ",
+    artist: "Mac Miller Feat. SZA",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 316,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573211/mac-miller-djs-chord-organ-feat-sza.mp3",
+    description:
+      "“DJ’s Chord Organ” was made using the chord organ of lo-fi pioneer Daniel Johnston. Mac acquired the organ in November 2013 after becoming an executive producer of Johnston’s biographical film Hi, How Are You Daniel Johnston? when he donated $10,000 to the film’s production. Around this time, upcoming singer-songwriter SZA had just signed to Top Dawg Entertainment and moved to Los Angeles, the home base of both Mac and TDE. Likely meeting Mac through her labelmates ScHoolboy Q and Ab-Soul, who were close friends of Mac, SZA says that he was the first person she met after moving to L.A., and she would “come over everyday” and record.",
+  },
+  {
+    id: "17",
+    name: "Do You Have A Destination?",
+    artist: "Mac Miller",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 205,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573212/mac-miller-do-you-have-a-destination.mp3",
+    description:
+      "“Do You Have a Destination?” by Mac Miller is a profound track from his posthumous album Balloonerism, which encapsulates the artist's distinctive blend of introspection, humor, and existential musings. From the outset, the song establishes a meditative mood with its jazz-influenced instrumentals, which effortlessly complement Mac's reflective lyrical content. His signature laid-back delivery is present, but underneath the nonchalance lies deep philosophical questioning, particularly regarding purpose, mortality, and self-identity. The title itself suggests a sense of searching or wandering, which permeates the entire song.",
+  },
+  {
+    id: "18",
+    name: "5 Dollar Pony Rides",
+    artist: "Mac Miller",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 222,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573213/mac-miller-5-dollar-pony-rides.mp3",
+    description:
+      "“5 Dollar Pony Rides”, the lead single from Balloonerism, sees Mac Miller reflecting on a complex, emotionally distant relationship. The song blends nostalgia with empathy, as Mac offers both temporary comfort (“What you want”) and deeper emotional support (“What you need”). The title “5 Dollar Pony Rides” serves as a metaphor for fleeting pleasures, highlighting the emptiness of quick fixes. With a mix of longing and frustration, Mac explores themes of loneliness, missed opportunities, and the difficulty of truly connecting.",
+  },
+  {
+    id: "19",
+    name: "Friendly Hallucinations",
+    artist: "Mac Miller",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 286,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573214/mac-miller-friendly-hallucinations.mp3",
+    description:
+      "On “Friendly Hallucinations”, Mac explores the relationship between drugs and the false sense of comfort that they may bring, as well as the detachment from the world and raw human emotions it may evoke.",
+  },
+  {
+    id: "20",
+    name: "Mrs. Deborah Downer",
+    artist: "Mac Miller",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 245,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573215/mac-miller-mrs-deborah-downer.mp3",
+    description:
+      "“Mrs. Deborah Downer” from Mac Miller’s posthumous album Balloonerism offers a melancholic and introspective vibe, showcasing his signature smooth flow and rich instrumentation. From the onset, the track immerses listeners in a laid-back, almost spoken-word atmosphere, with a steady bassline that grounds the song while the jazzy chords and subtle percussion create a dreamlike ambiance. The track feels both intimate and reflective, with Mac’s voice at the forefront, letting the emotional weight of his lyrics shine. There's a gentle complexity in how he navigates the interplay between light-hearted melodies and deeper, somber subject matter, making the song feel both soothing and thought-provoking.",
+  },
+  {
+    id: "21",
+    name: "Stoned",
+    artist: "Mac Miller",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 244,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573216/mac-miller-stoned.mp3",
+    description:
+      "“Stoned”, from Mac Miller's posthumous album Balloonerism, encapsulates a reflective and melancholic vibe that captures the complexities of the artist's relationship with both his inner self and a significant other. The track begins with a lush soundscape paired with a slow, blues-driven guitar that sets the tone for the mellow, laid-back vibe that dominates the song. As the track progresses, Mac's verse enters, carried by a slow drum beat that further solidifies the contemplative nature of the song. The smooth instrumentation and relaxed rhythm work perfectly to convey the sense of both emotional and physical languor.",
+  },
+  {
+    id: "22",
+    name: "Shangri-La",
+    artist: "Mac Miller",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 169,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573217/mac-miller-shangri-la.mp3",
+    description:
+      "“Shangri-La” from Mac Miller’s posthumous album Balloonerism is a mesmerizing blend of experimental sounds and introspective lyricism. The track kicks off with a spoken word sample that sets the tone for a dreamlike journey, underscored by a slow, almost hypnotic drum beat. True to Mac Miller's style, the sound is both weird and experimental, seamlessly blending genres and moods in a way that feels familiar yet refreshingly different. The hazy, laid-back vibe pulls you into a meditative state, perfectly complementing the song's overarching themes of escapism and self-reflection.",
+  },
+  {
+    id: "23",
+    name: "Funny Papers",
+    artist: "Mac Miller",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 264,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573218/mac-miller-funny-papers.mp3",
+    description:
+      "“Funny Papers”, a posthumous track from Mac Miller's album Balloonerism, is a poignant reflection on life, death, and the fleeting nature of existence. The song opens with a laid-back piano melody and a sample of Mac teaching how to dance, which sets the mood for a contemplative yet uplifting track. The production is smooth and mellow, providing a chilled-out vibe that complements Mac's introspective lyrics. The juxtaposition of heavy themes like death and loss with lighter, hopeful moments creates a balance that draws listeners into Mac’s world, where he's appreciating life despite its inevitable sadness.",
+  },
+  {
+    id: "24",
+    name: "Excelsior",
+    artist: "Mac Miller",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 144,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573219/mac-miller-excelsior.mp3",
+    description:
+      "“Excelsior” from Mac Miller’s posthumous album Balloonerism is a tranquil, introspective track that masterfully captures the essence of Mac's signature style. The song’s minimalist instrumentation, featuring a laid-back drum beat and sparse production, creates an atmosphere of relaxation. Mac Miller's delivery is soft and chilled, effortlessly blending into the dreamy soundscape as he reflects on the innocence of childhood and the inevitable encroachment of adulthood. The track feels like a slow, contemplative walk through memory, where each lyric evokes a sense of nostalgia and longing for simpler times.",
+  },
+  {
+    id: "25",
+    name: "Transformations",
+    artist: "Mac Miller Feat. Delusional Thomas",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 185,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573220/mac-miller-transformations-feat-delusional-thomas.mp3",
+    description:
+      "“Transformations” from Mac Miller's posthumous album Balloonerism offers a peculiar, yet intriguing interlude that captures the listener’s attention through its experimental production and eccentric vocal delivery. The track feels like a fusion of genres, blending trip-hop, jazz, and subtle hip-hop influences with abstract vocal pitch-shifting. The jazz instrumental backdrop, combined with the heavily distorted beats, creates an eerie yet laid-back atmosphere, characteristic of Mac's later experimental works. It feels like a collage of sounds stitched together, adding to its disjointed yet captivating nature.",
+  },
+  {
+    id: "26",
+    name: "Manakins",
+    artist: "Mac Miller",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 189,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573221/mac-miller-manakins.mp3",
+    description:
+      "“Manakins” by Mac Miller, from his posthumous album Balloonerism, offers a deep reflection on life, mortality, and the divine. Opening with a minimalist instrumental that swells in and out, the track sets a contemplative mood as Mac raps with a confident yet introspective tone. His thoughts on God and existence are at the forefront, drawing listeners into his internal world. The song is a meditation on the presence of a higher power and how that presence shapes his actions and thoughts.",
+  },
+  {
+    id: "27",
+    name: "Rick's Piano",
+    artist: "Mac Miller",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 309,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573222/mac-miller-ricks-piano.mp3",
+    description:
+      "“Rick's Piano”, a posthumous track from Mac Miller's Balloonerism, offers a hauntingly beautiful introspection on the artist's life, struggles, and philosophical musings. The song begins with a soft, minimalist instrumental, featuring a mellow piano that perfectly complements Mac's reflective lyrics. This gentle production, paired with the slow-paced rapping, creates an intimate atmosphere that feels both personal and vulnerable. It's a piece that resonates with listeners, particularly those familiar with Mac's battles with mental health and substance abuse, as it encapsulates his search for meaning in the face of personal turmoil.",
+  },
+  {
+    id: "28",
+    name: "Tomorrow Will Never Know",
+    artist: "Mac Miller",
+    album: "Balloonerism",
+    year: "2025",
+    genre: "Hip-Hop/Rap",
+    duration: 713,
+    image: "https://i.scdn.co/image/ab67616d0000b2739a9c4cd69a6f514dfbb7305a",
+    path: "https://musify.club/track/dl/20573223/mac-miller-tomorrow-will-never-know.mp3",
+    description:
+      "“Tomorrow Will Never Know” from Mac Miller’s posthumous album Balloonerism is a hauntingly slow and introspective journey, lasting a staggering 11 minutes. The track builds a psychedelic atmosphere that blends abstract and ambient sounds with a sense of deep existential reflection. Its dreamy, atmospheric qualities set the tone for Mac Miller's exploration of the intricacies of life, death, and the blurred lines between them. This track’s immersive quality captures listeners in a hypnotic flow that resonates deeply with the themes of mortality and introspection.",
+  },
 ]
 
-export const useMusicStore = create<MusicStore>((set, get) => ({
-  songs: songsData,
-  currentSong: null,
-  isPlaying: false,
+// Функция для создания случайной очереди воспроизведения
+const createShuffleQueue = (songs: Song[], currentSongId?: string): string[] => {
+  // Создаем массив ID всех песен, кроме текущей
+  const songIds = songs.map((song) => song.id).filter((id) => id !== currentSongId)
 
-  playSong: (song) => {
-    set({ currentSong: song, isPlaying: true })
-  },
+  // Перемешиваем массив
+  for (let i = songIds.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[songIds[i], songIds[j]] = [songIds[j], songIds[i]]
+  }
 
-  togglePlay: () => {
-    set((state) => ({ isPlaying: !state.isPlaying }))
-  },
+  // Если есть текущая песня, добавляем ее в начало
+  if (currentSongId) {
+    songIds.unshift(currentSongId)
+  }
 
-  nextSong: () => {
-    const { songs, currentSong } = get()
-    if (!currentSong) return
+  return songIds
+}
 
-    const currentIndex = songs.findIndex((song) => song.id === currentSong.id)
-    const nextIndex = (currentIndex + 1) % songs.length
-    set({ currentSong: songs[nextIndex], isPlaying: true })
-  },
+export const useMusicStore = create<MusicStore>()(
+  persist(
+    (set, get) => ({
+      songs: songsData,
+      currentSong: null,
+      isPlaying: false,
+      isShuffle: false,
+      isLoop: false,
+      shuffleQueue: [],
+      selectedCategory: "all",
 
-  prevSong: () => {
-    const { songs, currentSong } = get()
-    if (!currentSong) return
+      getFilteredSongs: () => {
+        const { songs, selectedCategory } = get()
+        if (selectedCategory === "all") {
+          return songs
+        }
+        return songs.filter((song) => song.genre === selectedCategory)
+      },
 
-    const currentIndex = songs.findIndex((song) => song.id === currentSong.id)
-    const prevIndex = (currentIndex - 1 + songs.length) % songs.length
-    set({ currentSong: songs[prevIndex], isPlaying: true })
-  },
-}))
+      setCategory: (category) => {
+        const { currentSong } = get()
+        set({ selectedCategory: category })
 
+        // Если текущая песня не соответствует выбранной категории, сбрасываем её
+        if (currentSong && category !== "all" && currentSong.genre !== category) {
+          set({ currentSong: null, isPlaying: false })
+        }
+
+        // Обновляем очередь shuffle, если она активна
+        const { isShuffle } = get()
+        if (isShuffle) {
+          const filteredSongs = get().getFilteredSongs()
+          const shuffleQueue = createShuffleQueue(filteredSongs)
+          set({ shuffleQueue })
+        }
+      },
+
+      playSong: (song) => {
+        const { isShuffle, getFilteredSongs } = get()
+        let shuffleQueue: string[] = []
+
+        if (isShuffle) {
+          const filteredSongs = getFilteredSongs()
+          shuffleQueue = createShuffleQueue(filteredSongs, song.id)
+        }
+
+        set({
+          currentSong: song,
+          isPlaying: true,
+          shuffleQueue: isShuffle ? shuffleQueue : [],
+        })
+      },
+
+      togglePlay: () => {
+        set((state) => ({ isPlaying: !state.isPlaying }))
+      },
+
+      toggleShuffle: () => {
+        const { isShuffle, currentSong, getFilteredSongs } = get()
+        let shuffleQueue: string[] = []
+
+        // Если включаем shuffle, создаем новую очередь
+        if (!isShuffle && currentSong) {
+          const filteredSongs = getFilteredSongs()
+          shuffleQueue = createShuffleQueue(filteredSongs, currentSong.id)
+        }
+
+        set({
+          isShuffle: !isShuffle,
+          shuffleQueue: !isShuffle ? shuffleQueue : [],
+        })
+      },
+
+      toggleLoop: () => {
+        set((state) => ({ isLoop: !state.isLoop }))
+      },
+
+      nextSong: () => {
+        const { currentSong, isShuffle, shuffleQueue, isLoop, getFilteredSongs } = get()
+        if (!currentSong) return
+
+        const filteredSongs = getFilteredSongs()
+        let nextSong = null
+
+        if (isShuffle) {
+          // Находим индекс текущей песни в очереди shuffle
+          const currentIndex = shuffleQueue.findIndex((id) => id === currentSong.id)
+
+          // Если это последняя песня в очереди
+          if (currentIndex === shuffleQueue.length - 1) {
+            if (isLoop) {
+              // Если включен loop, создаем новую очередь shuffle
+              const newShuffleQueue: string[] = createShuffleQueue(filteredSongs)
+              nextSong = filteredSongs.find((song) => song.id === newShuffleQueue[0]) || null
+              set({ shuffleQueue: newShuffleQueue })
+            } else {
+              // Если loop выключен, останавливаемся на последней песне
+              return
+            }
+          } else {
+            // Берем следующую песню из очереди shuffle
+            const nextId = shuffleQueue[currentIndex + 1]
+            nextSong = filteredSongs.find((song) => song.id === nextId) || null
+          }
+        } else {
+          // Обычный режим воспроизведения
+          const currentIndex = filteredSongs.findIndex((song) => song.id === currentSong.id)
+
+          // Если это последняя песня
+          if (currentIndex === filteredSongs.length - 1) {
+            if (isLoop) {
+              // Если включен loop, переходим к первой песне
+              nextSong = filteredSongs[0]
+            } else {
+              // Если loop выключен, останавливаемся на последней песне
+              return
+            }
+          } else {
+            // Берем следующую песню
+            nextSong = filteredSongs[currentIndex + 1]
+          }
+        }
+
+        if (nextSong) {
+          set({ currentSong: nextSong, isPlaying: true })
+        }
+      },
+
+      prevSong: () => {
+        const { currentSong, isShuffle, shuffleQueue, getFilteredSongs } = get()
+        if (!currentSong) return
+
+        const filteredSongs = getFilteredSongs()
+        let prevSong = null
+
+        if (isShuffle) {
+          // Находим индекс текущей песни в очереди shuffle
+          const currentIndex = shuffleQueue.findIndex((id) => id === currentSong.id)
+
+          // Если это первая песня в очереди
+          if (currentIndex === 0) {
+            // Остаемся на первой песне
+            return
+          } else {
+            // Берем предыдущую песню из очереди shuffle
+            const prevId = shuffleQueue[currentIndex - 1]
+            prevSong = filteredSongs.find((song) => song.id === prevId) || null
+          }
+        } else {
+          // Обычный режим воспроизведения
+          const currentIndex = filteredSongs.findIndex((song) => song.id === currentSong.id)
+
+          // Если это первая песня
+          if (currentIndex === 0) {
+            // Остаемся на первой песне
+            return
+          } else {
+            // Берем предыдущую песню
+            prevSong = filteredSongs[currentIndex - 1]
+          }
+        }
+
+        if (prevSong) {
+          set({ currentSong: prevSong, isPlaying: true })
+        }
+      },
+    }),
+    {
+      name: "music-player-storage",
+      partialize: (state) => ({
+        selectedCategory: state.selectedCategory,
+        // Можно добавить другие состояния, которые нужно сохранять
+      }),
+    },
+  ),
+)

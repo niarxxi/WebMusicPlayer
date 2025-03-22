@@ -1,19 +1,33 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react"
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Shuffle, Repeat, Music } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { useMusicStore } from "@/lib/music-store"
+import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 
 export default function MusicPlayer() {
-  const { currentSong, isPlaying, togglePlay, nextSong, prevSong } = useMusicStore()
+  const {
+    currentSong,
+    isPlaying,
+    isShuffle,
+    isLoop,
+    selectedCategory,
+    togglePlay,
+    toggleShuffle,
+    toggleLoop,
+    nextSong,
+    prevSong,
+    getFilteredSongs,
+  } = useMusicStore()
 
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(0.7)
   const [isMuted, setIsMuted] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const filteredSongs = getFilteredSongs()
 
   useEffect(() => {
     if (audioRef.current) {
@@ -64,16 +78,40 @@ export default function MusicPlayer() {
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`
   }
 
-  if (!currentSong) return <div className="text-white">Выберите песню для воспроизведения</div>
+  if (!currentSong) {
+    return (
+      <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 shadow-xl text-white h-full flex flex-col items-center justify-center">
+        <Music size={64} className="text-white/30 mb-4" />
+        <h3 className="text-xl font-medium mb-2">Нет выбранного трека</h3>
+        <p className="text-white/70 text-center mb-4">Выберите песню из каталога для воспроизведения</p>
+        {selectedCategory !== "all" && (
+          <Badge variant="outline" className="bg-purple-600/20 text-white border-purple-400">
+            <Music className="w-3 h-3 mr-1" />
+            Фильтр: {selectedCategory}
+          </Badge>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 shadow-xl text-white">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-sm font-medium text-white/70">Сейчас играет</h3>
+        {selectedCategory !== "all" && (
+          <Badge variant="outline" className="bg-purple-600/20 text-white border-purple-400">
+            <Music className="w-3 h-3 mr-1" />
+            {selectedCategory}
+          </Badge>
+        )}
+      </div>
+
       <div className="relative w-full aspect-square mb-6 overflow-hidden rounded-2xl">
         <Image
           src={currentSong.image || "/placeholder.svg"}
           alt={currentSong.name}
           fill
-          className={`object-cover transition-all duration-700 ${isPlaying ? "scale-105" : "scale-100"}`}
+          className={`object-cover transition-all duration-500 ${isPlaying ? "scale-105" : "scale-100"}`}
         />
         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
           <button
@@ -111,7 +149,16 @@ export default function MusicPlayer() {
         </div>
       </div>
 
-      <div className="flex justify-center items-center gap-8">
+      <div className="flex justify-center items-center gap-4 mb-6">
+        <button
+          onClick={toggleShuffle}
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+            isShuffle ? "bg-purple-600 text-white" : "bg-white/10 text-white/80 hover:bg-white/20"
+          }`}
+          title="Перемешать"
+        >
+          <Shuffle size={18} />
+        </button>
         <button
           onClick={prevSong}
           className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
@@ -130,6 +177,25 @@ export default function MusicPlayer() {
         >
           <SkipForward size={24} />
         </button>
+        <button
+          onClick={toggleLoop}
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+            isLoop ? "bg-purple-600 text-white" : "bg-white/10 text-white/80 hover:bg-white/20"
+          }`}
+          title="Повторять"
+        >
+          <Repeat size={18} />
+        </button>
+      </div>
+
+      <div className="text-xs text-white/50 text-center">
+        {filteredSongs.length}{" "}
+        {filteredSongs.length === 1
+          ? "трек"
+          : filteredSongs.length >= 2 && filteredSongs.length <= 4
+            ? "трека"
+            : "треков"}{" "}
+        в текущем плейлисте
       </div>
 
       <audio
@@ -142,3 +208,4 @@ export default function MusicPlayer() {
     </div>
   )
 }
+

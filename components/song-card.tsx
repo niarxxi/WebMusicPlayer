@@ -26,7 +26,7 @@ export default function SongCard({ song }: SongCardProps) {
   return (
     <div className="bg-white/5 hover:bg-white/10 transition-colors rounded-xl overflow-hidden flex">
       <div className="relative w-32 h-32 flex-shrink-0">
-        <Image src={song.image || "/placeholder.svg"} alt={song.name} fill className="object-cover" />
+        <Image src={song.image || "/placeholder.svg"} alt={song.name} fill className="object-cover" priority/>
       </div>
       <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
         <div>

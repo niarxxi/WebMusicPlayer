@@ -13,3 +13,11 @@ export interface Song {
   description?: string
 }
 
+export interface Playlist {
+  id: string
+  name: string
+  songs: string[] // Array of song IDs
+  createdAt: number
+  updatedAt: number
+}
+

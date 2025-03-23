@@ -1,44 +1,105 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Shuffle, Repeat, Music } from "lucide-react"
+import { useState, useRef, useEffect, useMemo } from "react"
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Shuffle, Repeat, Music, ListMusic } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { useMusicStore } from "@/lib/music-store"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 
 export default function MusicPlayer() {
-  const {
-    currentSong,
-    isPlaying,
-    isShuffle,
-    isLoop,
-    selectedCategory,
-    togglePlay,
-    toggleShuffle,
-    toggleLoop,
-    nextSong,
-    prevSong,
-    getFilteredSongs,
-  } = useMusicStore()
+  // Get data from store with individual selectors to minimize re-renders
+  const currentSong = useMusicStore((state) => state.currentSong)
+  const isPlaying = useMusicStore((state) => state.isPlaying)
+  const isShuffle = useMusicStore((state) => state.isShuffle)
+  const isLoop = useMusicStore((state) => state.isLoop)
+  const selectedCategory = useMusicStore((state) => state.selectedCategory)
+  const activePlaylist = useMusicStore((state) => state.activePlaylist)
+  const togglePlay = useMusicStore((state) => state.togglePlay)
+  const toggleShuffle = useMusicStore((state) => state.toggleShuffle)
+  const toggleLoop = useMusicStore((state) => state.toggleLoop)
+  const nextSong = useMusicStore((state) => state.nextSong)
+  const prevSong = useMusicStore((state) => state.prevSong)
 
+  // Local state
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(0.7)
   const [isMuted, setIsMuted] = useState(false)
+  const [filteredSongsCount, setFilteredSongsCount] = useState(0)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const filteredSongs = getFilteredSongs()
+  const isMounted = useRef(true)
 
+  // Get active playlist data and filtered songs count
+  const activePlaylistData = useMemo(() => {
+    if (!activePlaylist) return null
+    return useMusicStore.getState().getPlaylistById(activePlaylist)
+  }, [activePlaylist])
+
+  // Update filtered songs count
   useEffect(() => {
+    const count = useMusicStore.getState().getFilteredSongs().length
+    setFilteredSongsCount(count)
+  }, [activePlaylist, selectedCategory])
+
+  // Handle play/pause with proper error handling and cleanup
+  useEffect(() => {
+    let playPromise: Promise<void> | undefined
+
     if (audioRef.current) {
       if (isPlaying) {
-        audioRef.current.play().catch((err) => console.error("Ошибка воспроизведения:", err))
+        // Store the play promise to handle it properly
+        playPromise = audioRef.current.play()
+
+        // Handle play errors properly
+        if (playPromise !== undefined) {
+          playPromise.catch((err) => {
+            // Only log if component is still mounted
+            if (isMounted.current) {
+              console.error("Playback error:", err.message)
+              // If playback fails, update the UI state to reflect that
+              if (err.name !== "AbortError") {
+                useMusicStore.setState({ isPlaying: false })
+              }
+            }
+          })
+        }
       } else {
+        // Only pause if there's no pending play promise
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              if (audioRef.current && !isPlaying) {
+                audioRef.current.pause()
+              }
+            })
+            .catch(() => {
+              // Already handled above
+            })
+        } else {
+          audioRef.current.pause()
+        }
+      }
+    }
+
+    // Cleanup function to handle component unmounting during playback
+    return () => {
+      if (audioRef.current && isPlaying) {
         audioRef.current.pause()
       }
     }
   }, [isPlaying, currentSong])
 
+  // Add this useEffect for cleanup
+  useEffect(() => {
+    isMounted.current = true
+
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
+
+  // Handle volume changes
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume
@@ -84,11 +145,18 @@ export default function MusicPlayer() {
         <Music size={64} className="text-white/30 mb-4" />
         <h3 className="text-xl font-medium mb-2">Нет выбранного трека</h3>
         <p className="text-white/70 text-center mb-4">Выберите песню из каталога для воспроизведения</p>
-        {selectedCategory !== "all" && (
+        {activePlaylistData ? (
           <Badge variant="outline" className="bg-purple-600/20 text-white border-purple-400">
-            <Music className="w-3 h-3 mr-1" />
-            Фильтр: {selectedCategory}
+            <ListMusic className="w-3 h-3 mr-1" />
+            Плейлист: {activePlaylistData.name}
           </Badge>
+        ) : (
+          selectedCategory !== "all" && (
+            <Badge variant="outline" className="bg-purple-600/20 text-white border-purple-400">
+              <Music className="w-3 h-3 mr-1" />
+              Фильтр: {selectedCategory}
+            </Badge>
+          )
         )}
       </div>
     )
@@ -98,11 +166,18 @@ export default function MusicPlayer() {
     <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 shadow-xl text-white">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-medium text-white/70">Сейчас играет</h3>
-        {selectedCategory !== "all" && (
+        {activePlaylistData ? (
           <Badge variant="outline" className="bg-purple-600/20 text-white border-purple-400">
-            <Music className="w-3 h-3 mr-1" />
-            {selectedCategory}
+            <ListMusic className="w-3 h-3 mr-1" />
+            {activePlaylistData.name}
           </Badge>
+        ) : (
+          selectedCategory !== "all" && (
+            <Badge variant="outline" className="bg-purple-600/20 text-white border-purple-400">
+              <Music className="w-3 h-3 mr-1" />
+              {selectedCategory}
+            </Badge>
+          )
         )}
       </div>
 
@@ -189,13 +264,9 @@ export default function MusicPlayer() {
       </div>
 
       <div className="text-xs text-white/50 text-center">
-        {filteredSongs.length}{" "}
-        {filteredSongs.length === 1
-          ? "трек"
-          : filteredSongs.length >= 2 && filteredSongs.length <= 4
-            ? "трека"
-            : "треков"}{" "}
-        в текущем плейлисте
+        {filteredSongsCount}{" "}
+        {filteredSongsCount === 1 ? "трек" : filteredSongsCount >= 2 && filteredSongsCount <= 4 ? "трека" : "треков"} в
+        текущем плейлисте
       </div>
 
       <audio
@@ -204,6 +275,13 @@ export default function MusicPlayer() {
         onTimeUpdate={handleTimeUpdate}
         onEnded={nextSong}
         onLoadedMetadata={handleTimeUpdate}
+        onError={(e) => {
+          if (isMounted.current) {
+            console.error("Audio loading error:", (e.target as HTMLAudioElement).error)
+            // Update UI to reflect error state
+            useMusicStore.setState({ isPlaying: false })
+          }
+        }}
       />
     </div>
   )

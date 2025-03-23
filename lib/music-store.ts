@@ -2,9 +2,9 @@
 
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import type { Song, CategoryFilter } from "./types"
+import type { Song, CategoryFilter, Playlist } from "./types"
 
-// Обновляем интерфейс MusicStore, добавляя новые состояния и методы
+// Обновляем интерфейс MusicStore, добавляя новые состояния и методы для плейлистов
 interface MusicStore {
   songs: Song[]
   currentSong: Song | null
@@ -13,6 +13,8 @@ interface MusicStore {
   isLoop: boolean
   shuffleQueue: string[]
   selectedCategory: CategoryFilter
+  playlists: Playlist[]
+  activePlaylist: string | null
   playSong: (song: Song) => void
   togglePlay: () => void
   toggleShuffle: () => void
@@ -21,6 +23,17 @@ interface MusicStore {
   nextSong: () => void
   prevSong: () => void
   getFilteredSongs: () => Song[]
+  resetFilters: () => void
+  // Новые методы для работы с плейлистами
+  createPlaylist: (name: string) => string
+  renamePlaylist: (id: string, name: string) => void
+  deletePlaylist: (id: string) => void
+  addSongToPlaylist: (playlistId: string, songId: string) => void
+  removeSongFromPlaylist: (playlistId: string, songId: string) => void
+  reorderPlaylistSongs: (playlistId: string, sourceIndex: number, destinationIndex: number) => void
+  setActivePlaylist: (playlistId: string | null) => void
+  getPlaylistById: (id: string) => Playlist | undefined
+  getPlaylistSongs: (playlistId: string) => Song[]
 }
 
 // Расширенные данные о песнях
@@ -388,7 +401,7 @@ const songsData: Song[] = [
 
 // Функция для создания случайной очереди воспроизведения
 const createShuffleQueue = (songs: Song[], currentSongId?: string): string[] => {
-  // Создаем массив ID всех песен, кроме текущей
+  // Создаем массив ID всех песен, кроме ��екущей
   const songIds = songs.map((song) => song.id).filter((id) => id !== currentSongId)
 
   // Перемешиваем массив
@@ -405,6 +418,11 @@ const createShuffleQueue = (songs: Song[], currentSongId?: string): string[] => 
   return songIds
 }
 
+// Функция для генерации уникального ID
+const generateId = () => {
+  return Date.now().toString(36) + Math.random().toString(36).substring(2, 9)
+}
+
 export const useMusicStore = create<MusicStore>()(
   persist(
     (set, get) => ({
@@ -415,13 +433,42 @@ export const useMusicStore = create<MusicStore>()(
       isLoop: false,
       shuffleQueue: [],
       selectedCategory: "all",
+      playlists: [],
+      activePlaylist: null,
 
       getFilteredSongs: () => {
-        const { songs, selectedCategory } = get()
+        const { songs, selectedCategory, activePlaylist, playlists } = get()
+
+        // If activePlaylist is set, return songs from that playlist
+        if (activePlaylist) {
+          const playlist = playlists.find((p) => p.id === activePlaylist)
+          if (playlist) {
+            // Get the songs from the playlist
+            const playlistSongs = playlist.songs
+              .map((id) => songs.find((song) => song.id === id))
+              .filter((song): song is Song => song !== undefined)
+
+            // If a category is selected (not "all"), filter the playlist songs by that category
+            if (selectedCategory !== "all") {
+              return playlistSongs.filter((song) => song.genre === selectedCategory)
+            }
+
+            return playlistSongs
+          }
+        }
+
+        // Otherwise filter by category
         if (selectedCategory === "all") {
           return songs
         }
         return songs.filter((song) => song.genre === selectedCategory)
+      },
+
+      resetFilters: () => {
+        set({
+          selectedCategory: "all",
+          activePlaylist: null,
+        })
       },
 
       setCategory: (category) => {
@@ -571,12 +618,116 @@ export const useMusicStore = create<MusicStore>()(
           set({ currentSong: prevSong, isPlaying: true })
         }
       },
+
+      // Методы для работы с плейлистами
+      createPlaylist: (name) => {
+        const id = generateId()
+        const newPlaylist: Playlist = {
+          id,
+          name,
+          songs: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        }
+
+        set((state) => ({
+          playlists: [...state.playlists, newPlaylist],
+        }))
+
+        return id
+      },
+
+      renamePlaylist: (id, name) => {
+        set((state) => ({
+          playlists: state.playlists.map((playlist) =>
+            playlist.id === id ? { ...playlist, name, updatedAt: Date.now() } : playlist,
+          ),
+        }))
+      },
+
+      deletePlaylist: (id) => {
+        set((state) => ({
+          playlists: state.playlists.filter((playlist) => playlist.id !== id),
+          activePlaylist: state.activePlaylist === id ? null : state.activePlaylist,
+        }))
+      },
+
+      addSongToPlaylist: (playlistId, songId) => {
+        set((state) => ({
+          playlists: state.playlists.map((playlist) =>
+            playlist.id === playlistId && !playlist.songs.includes(songId)
+              ? {
+                  ...playlist,
+                  songs: [...playlist.songs, songId],
+                  updatedAt: Date.now(),
+                }
+              : playlist,
+          ),
+        }))
+      },
+
+      removeSongFromPlaylist: (playlistId, songId) => {
+        set((state) => ({
+          playlists: state.playlists.map((playlist) =>
+            playlist.id === playlistId
+              ? {
+                  ...playlist,
+                  songs: playlist.songs.filter((id) => id !== songId),
+                  updatedAt: Date.now(),
+                }
+              : playlist,
+          ),
+        }))
+      },
+
+      reorderPlaylistSongs: (playlistId, sourceIndex, destinationIndex) => {
+        const playlist = get().playlists.find((p) => p.id === playlistId)
+        if (!playlist) return
+
+        const newSongs = [...playlist.songs]
+        const [removed] = newSongs.splice(sourceIndex, 1)
+        newSongs.splice(destinationIndex, 0, removed)
+
+        set((state) => ({
+          playlists: state.playlists.map((p) =>
+            p.id === playlistId ? { ...p, songs: newSongs, updatedAt: Date.now() } : p,
+          ),
+        }))
+      },
+
+      setActivePlaylist: (playlistId) => {
+        set({
+          activePlaylist: playlistId,
+        })
+      },
+
+      getPlaylistById: (id) => {
+        return get().playlists.find((playlist) => playlist.id === id)
+      },
+
+      getPlaylistSongs: (playlistId) => {
+        const { songs, playlists, selectedCategory } = get()
+        const playlist = playlists.find((p) => p.id === playlistId)
+        if (!playlist) return []
+
+        const playlistSongs = playlist.songs
+          .map((id) => songs.find((song) => song.id === id))
+          .filter((song): song is Song => song !== undefined)
+
+        // Apply category filter if one is selected
+        if (selectedCategory !== "all") {
+          return playlistSongs.filter((song) => song.genre === selectedCategory)
+        }
+
+        return playlistSongs
+      },
     }),
     {
       name: "music-player-storage",
       partialize: (state) => ({
         selectedCategory: state.selectedCategory,
-        // Можно добавить другие состояния, которые нужно сохранять
+        playlists: state.playlists,
+        activePlaylist: state.activePlaylist,
       }),
     },
   ),

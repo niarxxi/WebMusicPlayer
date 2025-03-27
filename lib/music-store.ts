@@ -48,7 +48,8 @@ const songsData: Song[] = [
     duration: 180,
     image: "https://i.scdn.co/image/ab67616d0000b2736beb5db12245ae89a260e11e",
     path: "https://lmusic.kz/api/download/183624",
-    description: "\"Supernova\" is the eighth digital single by aespa. It was released on May 13, 2024 as the pre-release for the group's first full-length album, Armageddon.",
+    description:
+      '"Supernova" is the eighth digital single by aespa. It was released on May 13, 2024 as the pre-release for the group\'s first full-length album, Armageddon.',
   },
   {
     id: "2",
@@ -60,7 +61,8 @@ const songsData: Song[] = [
     duration: 195,
     image: "https://i.scdn.co/image/ab67616d0000b273b657fbb27b17e7bd4691c2b2",
     path: "https://lmusic.kz/api/download/167845",
-    description: "\"How Sweet\" is a song by the South Korean girl group NewJeans from their second single album of the same name. It was released by ADOR on May 24, 2024, along with the B-side track \"Bubble Gum\". NewJeans began promoting the single in April 2024, through the release of the music video for \"Bubble Gum\" on YouTube, featuring the Japanese version of the track in advertisements and television programs in Japan, and appearing on music shows and variety shows in South Korea. The single album debuted at number one in South Korea. It has been described as a Miami bass and electropop song.",
+    description:
+      '"How Sweet" is a song by the South Korean girl group NewJeans from their second single album of the same name. It was released by ADOR on May 24, 2024, along with the B-side track "Bubble Gum". NewJeans began promoting the single in April 2024, through the release of the music video for "Bubble Gum" on YouTube, featuring the Japanese version of the track in advertisements and television programs in Japan, and appearing on music shows and variety shows in South Korea. The single album debuted at number one in South Korea. It has been described as a Miami bass and electropop song.',
   },
   {
     id: "3",
@@ -72,7 +74,8 @@ const songsData: Song[] = [
     duration: 210,
     image: "https://i.scdn.co/image/ab67616d0000b273c9c9aaadb2d6d3d44be06332",
     path: "https://lmusic.kz/api/download/177315",
-    description: "\"See That?\" (Korean: 별별별; RR: Byeolbyeolbyeol; lit. All sorts of things) is a song by South Korean girl group Nmixx for their third extended play Fe3O4: Stick Out. It was released as the EP's lead single by JYP Entertainment and Republic Records on August 19, 2024.",
+    description:
+      '"See That?" (Korean: 별별별; RR: Byeolbyeolbyeol; lit. All sorts of things) is a song by South Korean girl group Nmixx for their third extended play Fe3O4: Stick Out. It was released as the EP\'s lead single by JYP Entertainment and Republic Records on August 19, 2024.',
   },
   {
     id: "4",
@@ -84,7 +87,8 @@ const songsData: Song[] = [
     duration: 165,
     image: "https://i.scdn.co/image/ab67616d0000b273c0fd19def5108123e077d634",
     path: "https://lmusic.kz/api/download/180106",
-    description: "\"Meow\" is the debut single by South Korean girl group Meovv. It was released by The Black Label on September 6, 2024.",
+    description:
+      '"Meow" is the debut single by South Korean girl group Meovv. It was released by The Black Label on September 6, 2024.',
   },
   {
     id: "5",
@@ -119,7 +123,7 @@ const songsData: Song[] = [
     album: "Hurry Up Tomorrow",
     year: "2024",
     genre: "Trap",
-    duration: 256 ,
+    duration: 256,
     image: "https://i.scdn.co/image/ab67616d0000b27358cd6595ed970f6862906ab8",
     path: "https://lmusic.kz/api/download/184710",
     description:
@@ -148,7 +152,8 @@ const songsData: Song[] = [
     duration: 171,
     image: "https://i.scdn.co/image/ab67616d0000b273253096eda3b7826c11c7fab8",
     path: "https://lmusic.kz/api/download/187124",
-    description: "Bored is the debut solo single by aespa member NINGNING, and the 3rd track on aespa - synk parallel line, an compilation of the member's solo singles that they performed during the tour of the same name. It was produced by Dom Rivinius, who is most notable for producing for Baekhyun, Alicia Keys, Taylor Swift, Eminem and BTS.",
+    description:
+      "Bored is the debut solo single by aespa member NINGNING, and the 3rd track on aespa - synk parallel line, an compilation of the member's solo singles that they performed during the tour of the same name. It was produced by Dom Rivinius, who is most notable for producing for Baekhyun, Alicia Keys, Taylor Swift, Eminem and BTS.",
   },
   {
     id: "10",
@@ -200,7 +205,7 @@ const songsData: Song[] = [
     image: "https://i.scdn.co/image/ab67616d0000b2737c8419b88944e9f7f5d44fdd",
     path: "https://lmusic.kz/api/download/213058",
     description:
-      "\"Radio (Dum-Dum)\" is the third digital single by Yuqi. It was released on March 17, 2025, but the special clip was released on September 23, 2024.",
+      '"Radio (Dum-Dum)" is the third digital single by Yuqi. It was released on March 17, 2025, but the special clip was released on September 23, 2024.',
   },
   {
     id: "14",
@@ -213,7 +218,7 @@ const songsData: Song[] = [
     image: "https://i.scdn.co/image/ab67616d0000b273c800e1a4a237cf8f085183c5",
     path: "https://mus.zvukofon.com/dl/1846702569/Don_Toliver_-_NEW_DROP_(musportal.org).mp3",
     description:
-      "\"New Drop\" is a song by American rapper and singer Don Toliver. It was released through Cactus Jack and Atlantic Records as a track from his fourth studio album, Hardstone Psycho, on June 14, 2024. Toliver wrote the song with producers Wheezy, Psymun, Dez Wright, and Coleman. The song gained mainstream popularity a few months after its release due to it being played in the background of a lot of videos on the online video platform TikTok.",
+      '"New Drop" is a song by American rapper and singer Don Toliver. It was released through Cactus Jack and Atlantic Records as a track from his fourth studio album, Hardstone Psycho, on June 14, 2024. Toliver wrote the song with producers Wheezy, Psymun, Dez Wright, and Coleman. The song gained mainstream popularity a few months after its release due to it being played in the background of a lot of videos on the online video platform TikTok.',
   },
   {
     id: "15",
@@ -401,7 +406,7 @@ const songsData: Song[] = [
 
 // Функция для создания случайной очереди воспроизведения
 const createShuffleQueue = (songs: Song[], currentSongId?: string): string[] => {
-  // Создаем массив ID всех песен, кроме ��екущей
+  // Создаем массив ID всех песен, кроме екущей
   const songIds = songs.map((song) => song.id).filter((id) => id !== currentSongId)
 
   // Перемешиваем массив
@@ -439,16 +444,16 @@ export const useMusicStore = create<MusicStore>()(
       getFilteredSongs: () => {
         const { songs, selectedCategory, activePlaylist, playlists } = get()
 
-        // If activePlaylist is set, return songs from that playlist
+        // Если activePlaylist установлен, возвращаем песни из этого плейлиста
         if (activePlaylist) {
           const playlist = playlists.find((p) => p.id === activePlaylist)
           if (playlist) {
-            // Get the songs from the playlist
+            // Получаем песни из плейлиста
             const playlistSongs = playlist.songs
               .map((id) => songs.find((song) => song.id === id))
               .filter((song): song is Song => song !== undefined)
 
-            // If a category is selected (not "all"), filter the playlist songs by that category
+            // Если выбрана категория (не "all"), фильтруем песни плейлиста по этой категории
             if (selectedCategory !== "all") {
               return playlistSongs.filter((song) => song.genre === selectedCategory)
             }
@@ -457,7 +462,7 @@ export const useMusicStore = create<MusicStore>()(
           }
         }
 
-        // Otherwise filter by category
+        // В противном случае фильтруем по категории
         if (selectedCategory === "all") {
           return songs
         }
@@ -489,20 +494,33 @@ export const useMusicStore = create<MusicStore>()(
         }
       },
 
+      // Обновляем функцию playSong для обработки возобновления воспроизведения
       playSong: (song) => {
-        const { isShuffle, getFilteredSongs } = get()
+        const { isShuffle, getFilteredSongs, currentSong, isPlaying } = get()
         let shuffleQueue: string[] = []
+
+        // Проверяем, воспроизводим ли мы ту же песню, которая уже текущая
+        const isSameSong = currentSong && currentSong.id === song.id
 
         if (isShuffle) {
           const filteredSongs = getFilteredSongs()
           shuffleQueue = createShuffleQueue(filteredSongs, song.id)
         }
 
-        set({
-          currentSong: song,
-          isPlaying: true,
-          shuffleQueue: isShuffle ? shuffleQueue : [],
-        })
+        // Если это та же песня и она уже воспроизводилась, просто переключаем состояние воспроизведения
+        // Это позволяет аудио провайдеру обрабатывать возобновление с текущей позиции
+        if (isSameSong) {
+          set({
+            isPlaying: !isPlaying,
+          })
+        } else {
+          // Если это другая песня, устанавливаем её как текущую и начинаем воспроизведение
+          set({
+            currentSong: song,
+            isPlaying: true,
+            shuffleQueue: isShuffle ? shuffleQueue : [],
+          })
+        }
       },
 
       togglePlay: () => {
@@ -714,7 +732,7 @@ export const useMusicStore = create<MusicStore>()(
           .map((id) => songs.find((song) => song.id === id))
           .filter((song): song is Song => song !== undefined)
 
-        // Apply category filter if one is selected
+        // Применяем фильтр категории, если он выбран
         if (selectedCategory !== "all") {
           return playlistSongs.filter((song) => song.genre === selectedCategory)
         }
@@ -732,3 +750,4 @@ export const useMusicStore = create<MusicStore>()(
     },
   ),
 )
+

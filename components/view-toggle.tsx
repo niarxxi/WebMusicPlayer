@@ -16,10 +16,10 @@ export default function ViewToggle() {
   const router = useRouter()
   const pathname = usePathname()
 
-  // Check if we're in a playlist page
+  // Проверяем, находимся ли мы на странице плейлиста
   const isPlaylistPage = pathname.startsWith("/playlist/")
 
-  // Handle component unmounting to prevent async issues
+  // Обработка размонтирования компонента для предотвращения асинхронных проблем
   useEffect(() => {
     isMounted.current = true
 
@@ -32,39 +32,39 @@ export default function ViewToggle() {
 
   const handleToggleView = async () => {
     if (activePlaylist) {
-      // If we're in a playlist view, go back to main catalog
+      // Если мы в режиме просмотра плейлиста, возвращаемся в основной каталог
       setIsTransitioning(true)
 
       try {
-        // Use setTimeout with a Promise to handle async transition
+        // Используем setTimeout с Promise для обработки асинхронного перехода
         await new Promise((resolve) => setTimeout(resolve, 300))
 
-        // Only update state if component is still mounted
+        // Обновляем состояние только если компонент все еще смонтирован
         if (isMounted.current) {
           setActivePlaylist(null)
           setIsTransitioning(false)
         }
       } catch (error) {
         console.error("Error during view transition:", error)
-        // Reset transitioning state if there's an error
+        // Сбрасываем состояние перехода, если возникла ошибка
         if (isMounted.current) {
           setIsTransitioning(false)
         }
       }
     } else {
-      // If we're in the main catalog, go to playlists page
+      // Если мы в основном каталоге, переходим на страницу плейлистов
       router.push("/playlists")
     }
   }
 
-  // Determine button text based on context
+  // Определяем текст кнопки на основе контекста
   const buttonText = isPlaylistPage
     ? "Вернуться к плейлистам"
     : activePlaylist
       ? "Вернуться в каталог"
       : "Перейти к плейлистам"
 
-  // Determine button icon based on context
+  // Определяем иконку кнопки на основе контекста
   const ButtonIcon = isPlaylistPage ? ArrowLeft : activePlaylist ? Library : ListMusic
 
   return (
@@ -103,8 +103,4 @@ export default function ViewToggle() {
     </div>
   )
 }
-
-
-
-
 

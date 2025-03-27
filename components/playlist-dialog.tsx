@@ -28,7 +28,7 @@ export default function PlaylistDialog({ open, onOpenChange, playlist }: Playlis
   const isMounted = useRef(true)
   const isEditing = !!playlist
 
-  // Handle component unmounting to prevent async issues
+  // Обработка размонтирования компонента для предотвращения асинхронных проблем
   useEffect(() => {
     isMounted.current = true
 
@@ -56,7 +56,7 @@ export default function PlaylistDialog({ open, onOpenChange, playlist }: Playlis
           await createPlaylist(name.trim())
         }
 
-        // Only update state if component is still mounted
+        // Обновляем состояние только если компонент все еще смонтирован
         if (isMounted.current) {
           onOpenChange(false)
         }

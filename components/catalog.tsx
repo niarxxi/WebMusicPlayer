@@ -7,8 +7,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, Music, ListMusic } from "lucide-react"
 import SongCard from "./song-card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import AddToPlaylistDialog from "./add-to-playlist-dialog"
 import PlaylistDialog from "./playlist-dialog"
 import ViewToggle from "./view-toggle"
@@ -16,7 +14,7 @@ import BreadcrumbNav from "./breadcrumb-nav"
 import type { Song } from "@/lib/types"
 
 export default function Catalog() {
-  // Get data from store
+  // Получаем данные из хранилища
   const songs = useMusicStore((state) => state.songs)
   const selectedCategory = useMusicStore((state) => state.selectedCategory)
   const setCategory = useMusicStore((state) => state.setCategory)
@@ -24,7 +22,7 @@ export default function Catalog() {
   const getPlaylistById = useMusicStore((state) => state.getPlaylistById)
   const getFilteredSongs = useMusicStore((state) => state.getFilteredSongs)
 
-  // Local state
+  // Локальное состояние
   const [searchQuery, setSearchQuery] = useState("")
   const [addToPlaylistDialogOpen, setAddToPlaylistDialogOpen] = useState(false)
   const [createPlaylistDialogOpen, setCreatePlaylistDialogOpen] = useState(false)
@@ -32,7 +30,7 @@ export default function Catalog() {
   const [displaySongs, setDisplaySongs] = useState<Song[]>([])
   const isMounted = useRef(true)
 
-  // Handle component unmounting to prevent async issues
+  // Обработка размонтирования компонента для предотвращения асинхронных проблем
   useEffect(() => {
     isMounted.current = true
 
@@ -41,16 +39,16 @@ export default function Catalog() {
     }
   }, [])
 
-  // Get unique genres for tabs
+  // Получаем уникальные жанры для вкладок
   const genres = useMemo(() => Array.from(new Set(songs.map((song) => song.genre))), [songs])
 
-  // Get active playlist data
+  // Получаем данные активного плейлиста
   const activePlaylistData = useMemo(
     () => (activePlaylist ? getPlaylistById(activePlaylist) : null),
     [activePlaylist, getPlaylistById],
   )
 
-  // Update displayed songs when filters change
+  // Обновляем отображаемые песни при изменении фильтров
   useEffect(() => {
     const updateSongs = async () => {
       try {
@@ -61,12 +59,12 @@ export default function Catalog() {
             song.artist.toLowerCase().includes(searchQuery.toLowerCase()),
         )
 
-        // Only update state if component is still mounted
+        // Обновляем состояние только если компонент все еще смонтирован
         if (isMounted.current) {
           setDisplaySongs(searchFiltered)
         }
       } catch (error) {
-        console.error("Error filtering songs:", error)
+        console.error("Ошибка при фильтрации песен:", error)
       }
     }
 
@@ -84,7 +82,7 @@ export default function Catalog() {
 
   return (
     <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 shadow-xl text-white">
-      {/* Breadcrumb navigation */}
+      {/* Навигация по хлебным крошкам */}
       <BreadcrumbNav />
 
       <div className="flex items-center justify-between mb-6">
@@ -107,7 +105,7 @@ export default function Catalog() {
         )}
       </div>
 
-      {/* View toggle button */}
+      {/* Кнопка переключения вида */}
       <ViewToggle />
 
       <div className="relative mb-6">
@@ -132,7 +130,7 @@ export default function Catalog() {
             </TabsTrigger>
           ))}
         </TabsList>
-      </Tabs>      
+      </Tabs>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2">
         {displaySongs.length > 0 ? (

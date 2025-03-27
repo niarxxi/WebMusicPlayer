@@ -24,7 +24,7 @@ export default function PlaylistPage() {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const isMounted = useRef(true)
 
-  // Handle component unmounting to prevent async issues
+  // Обработка размонтирования компонента для предотвращения асинхронных проблем
   useEffect(() => {
     isMounted.current = true
 
@@ -57,7 +57,7 @@ export default function PlaylistPage() {
       try {
         await deletePlaylist(playlist.id)
 
-        // Only navigate if component is still mounted
+        // Переходим только если компонент все еще смонтирован
         if (isMounted.current) {
           router.push("/playlists")
         }
@@ -75,24 +75,24 @@ export default function PlaylistPage() {
     setIsTransitioning(true)
 
     try {
-      // Use setTimeout with a Promise to handle async transition
+      // Используем setTimeout с Promise для обработки асинхронного перехода
       await new Promise((resolve) => setTimeout(resolve, 300))
 
-      // Only update state if component is still mounted
+      // Обновляем состояние только если компонент все еще смонтирован
       if (isMounted.current) {
         setActivePlaylist(playlist.id)
         router.push("/")
       }
     } catch (error) {
       console.error("Error during transition to catalog:", error)
-      // Reset transitioning state if there's an error
+      // Сбрасываем состояние перехода, если возникла ошибка
       if (isMounted.current) {
         setIsTransitioning(false)
       }
     }
   }
 
-  // Reset category filter when viewing a playlist
+  // Сбрасываем фильтр категорий при просмотре плейлиста
   useEffect(() => {
     if (selectedCategory !== "all") {
       setCategory("all")

@@ -19,17 +19,17 @@ export default function BreadcrumbNav() {
   const pathname = usePathname()
   const { getPlaylistById, resetFilters, activePlaylist } = useMusicStore()
 
-  // Build breadcrumb items based on current path
+  // Создаем элементы breadcrumbs на основе текущего пути
   const breadcrumbs: BreadcrumbItem[] = [
     {
       label: "Главная",
       href: "/",
       icon: <Home size={16} />,
-      onClick: resetFilters, // Reset filters when clicking Home
+      onClick: resetFilters, // Сбрасываем фильтры при нажатии на Главную
     },
   ]
 
-  // Add playlist-related breadcrumbs
+  // Добавляем breadcrumbs, связанные с плейлистами
   if (pathname.startsWith("/playlists")) {
     breadcrumbs.push({
       label: "Плейлисты",
@@ -43,7 +43,7 @@ export default function BreadcrumbNav() {
       icon: <ListMusic size={16} />,
     })
 
-    // Add specific playlist name if we're on a playlist page
+    // Добавляем конкретное имя плейлиста, если мы находимся на странице плейлиста
     const playlistId = pathname.split("/").pop()
     if (playlistId) {
       const playlist = getPlaylistById(playlistId)

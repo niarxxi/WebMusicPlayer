@@ -71,7 +71,7 @@ export default function PlaylistCard({ playlist, onRename }: PlaylistCardProps) 
           <span>
             {songsCount} {songsCount === 1 ? "трек" : songsCount >= 2 && songsCount <= 4 ? "трека" : "треков"}
           </span>
-          <span className="mx-2">•</span>
+          <span className="mx-2">��</span>
           <span>Обновлен {updatedAt}</span>
         </div>
 

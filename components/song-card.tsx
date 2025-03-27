@@ -18,7 +18,7 @@ export default function SongCard({ song, onAddToPlaylist, showPlaylistOptions = 
   const { currentSong, isPlaying, playSong, togglePlay, removeSongFromPlaylist } = useMusicStore()
   const isMounted = useRef(true)
 
-  // Handle component unmounting to prevent async issues
+  // Обработка размонтирования компонента для предотвращения асинхронных проблем
   useEffect(() => {
     isMounted.current = true
 
@@ -31,11 +31,8 @@ export default function SongCard({ song, onAddToPlaylist, showPlaylistOptions = 
 
   const handlePlayClick = async () => {
     try {
-      if (isCurrentSong) {
-        togglePlay()
-      } else {
-        playSong(song)
-      }
+      // Используем playSong, который теперь обрабатывает переключение состояния воспроизведения для текущей песни
+      playSong(song)
     } catch (error) {
       console.error("Error playing song:", error)
     }
@@ -54,7 +51,14 @@ export default function SongCard({ song, onAddToPlaylist, showPlaylistOptions = 
   return (
     <div className="bg-white/5 hover:bg-white/10 transition-colors rounded-xl overflow-hidden flex h-32">
       <div className="relative w-32 h-32 flex-shrink-0">
-        <Image src={song.image || "/placeholder.svg"} alt={song.name} fill className="object-cover" sizes="80px" priority/>
+        <Image
+          src={song.image || "/placeholder.svg"}
+          alt={song.name}
+          fill
+          className="object-cover"
+          sizes="80px"
+          priority
+        />
       </div>
       <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
         <div className="flex items-start justify-between">

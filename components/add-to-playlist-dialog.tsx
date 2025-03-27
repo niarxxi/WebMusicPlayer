@@ -20,10 +20,10 @@ export default function AddToPlaylistDialog({ open, onOpenChange, song, onCreate
   const [existingPlaylistIds, setExistingPlaylistIds] = useState<string[]>([])
   const isMounted = useRef(true)
 
-  // Reset state when dialog opens or song changes
+  // Сбрасываем состояние при открытии диалога или изменении песни
   useEffect(() => {
     if (open) {
-      // Find playlists that already contain this song
+      // Находим плейлисты, которые уже содержат эту песню
       const store = useMusicStore.getState()
       const existing = playlists
         .filter((playlist) => {
@@ -37,7 +37,7 @@ export default function AddToPlaylistDialog({ open, onOpenChange, song, onCreate
     }
   }, [open, song.id, playlists])
 
-  // Handle component unmounting to prevent async issues
+  // Обработка размонтирования компонента для предотвращения асинхронных проблем
   useEffect(() => {
     isMounted.current = true
 
@@ -47,18 +47,18 @@ export default function AddToPlaylistDialog({ open, onOpenChange, song, onCreate
   }, [])
 
   const handleTogglePlaylist = (playlistId: string) => {
-    // Skip if song is already in this playlist
+    // Пропускаем, если песня уже в этом плейлисте
     if (existingPlaylistIds.includes(playlistId)) return
 
-    // Check if we're adding or removing
+    // Проверяем, добавляем или удаляем
     if (addedPlaylistIds.includes(playlistId)) {
-      // Remove from our local tracking state (we don't remove from actual playlist)
+      // Удаляем из нашего локального состояния отслеживания (мы не удаляем из реального плейлиста)
       setAddedPlaylistIds((prev) => prev.filter((id) => id !== playlistId))
     } else {
-      // Add to our local tracking state
+      // Добавляем в наше локальное состояние отслеживания
       setAddedPlaylistIds((prev) => [...prev, playlistId])
 
-      // Add to the actual playlist - wrap in a try/catch to handle potential async issues
+      // Добавляем в реальный плейлист - оборачиваем в try/catch для обработки потенциальных асинхронных проблем
       try {
         addSongToPlaylist(playlistId, song.id)
       } catch (error) {
@@ -68,7 +68,7 @@ export default function AddToPlaylistDialog({ open, onOpenChange, song, onCreate
   }
 
   const handleCreatePlaylist = () => {
-    // Only proceed if component is still mounted
+    // Продолжаем только если компонент все еще смонтирован
     if (isMounted.current) {
       onOpenChange(false)
       onCreatePlaylist()
@@ -134,3 +134,4 @@ export default function AddToPlaylistDialog({ open, onOpenChange, song, onCreate
     </Dialog>
   )
 }
+

@@ -196,7 +196,7 @@ export default function MobilePlayer({ isOpen, onClose }: MobilePlayerProps) {
                   >
                     {/* Обложка альбома */}
                     <div className="px-6 flex-1 flex justify-center items-center min-h-0 py-4">
-                      <div className="relative w-full max-w-[300px] aspect-square rounded-xl overflow-hidden shadow-2xl">
+                      <div className="relative w-full max-w-[250px] aspect-square rounded-xl overflow-hidden shadow-2xl">
                         <Image
                           src={currentSong.image || "/placeholder.svg"}
                           alt={currentSong.name}

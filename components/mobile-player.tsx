@@ -21,6 +21,8 @@ import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { useScrollLock } from "@/hooks/use-scroll-lock"
+import { useIosSafariFix } from "@/hooks/use-ios-safari-fix"
 
 interface MobilePlayerProps {
   isOpen: boolean
@@ -49,6 +51,9 @@ export default function MobilePlayer({ isOpen, onClose }: MobilePlayerProps) {
   const [volume, setVolume] = useState(0.7)
   const [isMuted, setIsMuted] = useState(false)
   const [showDescription, setShowDescription] = useState(false)
+
+  useScrollLock(isOpen && isMobile)
+  useIosSafariFix(isOpen && isMobile)
 
   // Получаем данные активного плейлиста
   const activePlaylistData = activePlaylist ? getPlaylistById(activePlaylist) : null

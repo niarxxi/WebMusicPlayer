@@ -21,14 +21,19 @@ export default function PlayerContainer() {
 
   // Добавляем класс к body, когда мини-плеер видим
   useEffect(() => {
-    if (isMobile && currentSong && !isFullscreenOpen) {
-      document.body.classList.add("has-mini-player")
+    if (isMobile && currentSong) {
+      if (!isFullscreenOpen) {
+        document.body.classList.add("has-mini-player")
+      } else {
+        document.body.classList.remove("has-mini-player")
+        document.body.classList.add("has-fullscreen-player")
+      }
     } else {
-      document.body.classList.remove("has-mini-player")
+      document.body.classList.remove("has-mini-player", "has-fullscreen-player")
     }
 
     return () => {
-      document.body.classList.remove("has-mini-player")
+      document.body.classList.remove("has-mini-player", "has-fullscreen-player")
     }
   }, [isMobile, currentSong, isFullscreenOpen])
 
